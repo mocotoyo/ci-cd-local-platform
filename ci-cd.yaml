@@ -1,0 +1,30 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Clonar el repositorio
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2️⃣ Construir la imagen Docker
+    - name: Build Docker image
+      run: |
+        docker build -t local-app:latest ./app
+
+    # 3️⃣ Escanear la imagen con Trivy
+    - name: Scan Docker image
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: local-app:latest
+        format: table
+        exit-code: 1   # Sale con error si encuentra vulnerabilidades críticas
+
